@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="ISO-8859-1" />
+</head>
+<script
+	src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+<body>
+	<div data-ng-app="myApp" data-ng-controller="formCtrl">
+		<form name="myForm">
+			<label> UsernameEmail: <input type="text" name="userName"
+				ng-model="username" required>
+			</label>
+			<br/>
+			<label> Password: <input type="text" name="lastName"
+				ng-model="password" ng-minlength="3" ng-maxlength="10">
+			</label>
+		</form>
+		<button ng-click="doctorLogin()">Login</button><br/>
+		<button ng-click="doctorSignup()">Sign up</button>
+	</div>
+	<script>
+		var app = angular.module('myApp', []);
+		app.controller('formCtrl', function($scope, $location, $http) {
+		
+			//Cookie Setup
+			var expDays = 30;
+			var exp = new Date();
+			exp.setTime(exp.getTime() + (expDays*24*60*60*1000));
+			function GetCookie(name) {
+				var arg = name + "=";
+				var alen = arg.length;
+				var clen = document.cookie.length;
+				var i = 0;
+				while (i < clen) {
+					var j = i + alen;
+					if (document.cookie.substring(i, j) == arg)
+						return getCookieVal(j);
+					i = document.cookie.indexOf(" ", i) + 1;
+					if (i == 0)
+						break;
+				}
+				return null;
+			}
+			function SetCookie(name, value) {
+				var argv = SetCookie.arguments;
+				var argc = SetCookie.arguments.length;
+				var expires = (argc > 2) ? argv[2] : null;
+				var path = (argc > 3) ? argv[3] : null;
+				var domain = (argc > 4) ? argv[4] : null;
+				var secure = (argc > 5) ? argv[5] : false;
+				document.cookie = name
+						+ "="
+						+ escape(value)
+						+ ((expires == null) ? ""
+								: ("; expires=" + expires
+										.toGMTString()))
+						+ ((path == null) ? ""
+								: ("; path=" + path))
+						+ ((domain == null) ? ""
+								: ("; domain=" + domain))
+						+ ((secure == true) ? "; secure" : "");
+			}
+			function DeleteCookie(name) {
+				var exp = new Date();
+				exp.setTime(exp.getTime() - 1);
+				var cval = GetCookie(name);
+				document.cookie = name + "=" + cval
+						+ "; expires=" + exp.toGMTString();
+			}
+			
+			$scope.doctorSignup = function() {
+				window.location = "http://localhost:8888/app/appointmentbookingapp/doctorregistration";
+			};
+			
+			$scope.doctorLogin = function() {
+				//alert();
+				
+				if($scope.username == null | $scope.password == null){
+					alert("Please Provide correct Data");
+				}
+				else {
+				//alert($scope.username);
+				var url = "http://localhost:8888/app/cityvault/doctoruserlogin/" + $scope.username;
+				$http.get(url)
+				.then(function(response) {
+							//window.location = "http://localhost:8888/app/"
+							//document.cookie = "doctorId=" + response.data.doctorId ;
+							//alert(document.cookie.doctorId);
+							if($scope.password == response.data.doctorPassword) {
+								//alert("doctorId " + response.data.doctorUserId);
+								SetCookie("doctorId", response.data.doctorUserId);
+								alert("logged In!!!");
+								window.location = "http://localhost:8888/app/appointmentbookingapp/doctordashboard";
+							}
+							else {
+								location.replace("http://localhost:8888/app/");
+							}
+						},
+						function myError(response) {
+							location.replace("http://localhost:8888/app/");
+						});
+				}
+			};
+
+		});
+	</script>
+</body>
+</html>

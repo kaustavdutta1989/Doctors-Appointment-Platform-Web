@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="ISO-8859-1" />
+</head>
+<style>
+div.solid {
+	border-style: solid;
+	background-color: #abcdef;
+	width: 20%;
+	height: 30%;
+	overflow: scroll;
+}
+
+table, th, td {
+	border: 1px solid grey;
+	border-collapse: collapse;
+	padding: 5px;
+}
+
+table tr:nth-child(odd) {
+	background-color: #f1f1f1;
+}
+
+table tr:nth-child(even) {
+	background-color: #ffffff;
+}
+</style>
+<script
+	src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+<body>
+	<div data-ng-app="myApp" data-ng-controller="formCtrl">
+		<form name="myForm">
+			<label> Last Name: <input type="text" name="patientlastname"
+				ng-model="patientlastname" required>
+			</label> <br /> 
+			<label> First Name: <input type="text"
+				name="patientfirstname" ng-model="patientfirstname" required>
+			</label> <br /> 
+			<label> Street Address: <input type="text"
+				name="patientstreetname" ng-model="patientstreetname" required>
+			</label> <br /> 
+			<label> Area Address: <input type="text"
+				name="patientareaname" ng-model="patientareaname" required>
+			</label> <br /> 
+			<label> Postal Code: <input type="number"
+				name="patientpostalcode" ng-model="doctorpostalcode" required
+				min="100" max="99999">
+			</label> <br /> 
+			City: <select ng-model="patientcity"
+				ng-options="x.cityName for x in citynames">
+				<option value="">--SelectCity--</option>
+			</select> <br /> 
+			<label> Email: <input type="email"
+				name="patientemail" ng-model="patientemail" required>
+			</label> <br /> 
+			<label> Contact: <input type="number"
+				name="patientContact" ng-model="patientContact" required>
+			</label> <br /> 
+			<label> Password: <input type="password"
+				name="doctorpassword" ng-model="patientpassword" required>
+			</label> <br /> 
+			<label> Gender: <select ng-model="patientgender">
+			<option value="">-Select Gender-</option>
+				<option value="Male">Male</option>
+				<option value="Female">Female</option>
+				</select>
+			</label>
+			<br/>
+			<label> Age: <input type="number"
+				name="patientAge" ng-model="patientAge" required>
+			</label>
+			 <br /> 
+			
+				<p>Guardian
+				<input type="checkbox" ng-model="isGuardian"></p>
+			
+			<!-- ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,, -->
+			<div ng-show="isGuardian">
+				<label>Guardian Last Name: <input type="text" name="guardianlastname"
+					ng-model="guardianlastname" required>
+				</label> <br /> 
+				<label> First Name: <input type="text"
+					name="guardianfirstname" ng-model="guardianfirstname" required>
+				</label> <br /> 
+				<label> Street Address: <input type="text"
+					name="guardianstreetname" ng-model="guardianstreetname" required>
+				</label> <br /> 
+				<label> Area Address: <input type="text"
+					name="guardianpostalcode" ng-model="guardianareaname" required>
+				</label> <br /> 
+				<label> Postal Code: <input type="number"
+					name="patientpostalcode" ng-model="doctorpostalcode" required
+					min="10000" max="999999">
+				</label> <br /> 
+				City: <select ng-model="guardiancity"
+					ng-options="x.cityName for x in citynames">
+					<option value="">--SelectCity--</option>
+				</select> <br /> 
+				<label> Email: <input type="email"
+					name="guardianemail" ng-model="guardianemail" required>
+				</label> <br /> 
+				<label> Contact: <input type="number"
+					name="guardiancontact" ng-model="guardiancontact" required>
+				</label>
+			</div>
+			<!-- XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX -->
+			
+		</form>
+		<br/>
+		<button ng-click="patientRegistration()" type="submit">Register</button>
+	</div>
+	<script>
+		var app = angular.module('myApp', []);
+		app.controller('formCtrl', function($scope, $location, $http) {
+			
+			$http.get("http://localhost:8888/app/cityvault/cities")
+			.then(function(response) {
+				$scope.citynames = response.data;
+			}, function myError(response) {
+				$scope.heading += response.statusText;
+			});
+			
+			$http.get("http://localhost:8888/app/cityvault/doctortypes")
+			.then(function(response) {
+				$scope.doctortypes = response.data;
+			}, function myError(response) {
+				$scope.heading += response.statusText;
+			});
+			
+			$http.get("http://localhost:8888/app/cityvault/slots")
+			.then(function(response) {
+				$scope.slots = response.data;
+			}, function myError(response) {
+				$scope.heading += response.statusText;
+			});
+			
+			$scope.patientRegistration = function() {
+				
+				if($scope.isGuardian) {
+					var guardianRegistrationForm = {
+							  guardianAreaName: $scope.guardianareaname,
+							  guardianCity: $scope.guardiancity.cityId,
+							  guardianContact: $scope.guardiancontact,
+							  guardianEmail: $scope.guardianemail,
+							  guardianFirstName: $scope.guardianfirstname,
+							  guardianLastName: $scope.guardianlastname,
+							  guardianPostalCode: $scope.doctorpostalcode,
+							  guardianStreetName: $scope.guardianstreetname
+							};
+					
+					var guardianreq = {
+							 method: 'POST',
+							 url: 'http://localhost:8888/app/cityvault/guardianuserregistration',
+							 data:  JSON.stringify(guardianRegistrationForm)
+							};
+					
+					$http(guardianreq)
+					.then(function(response) {
+								$scope.guardianId = response.data.guardianId;
+								registerPatient();
+								window.location = "http://localhost:8888/app/appointmentbookingapp/patientashboard";
+							},
+							function myError(response) {
+								alert("bekar");
+								$scope.heading += response.statusText;
+							});
+				} else {
+					registerPatient();
+				}
+				
+				function registerPatient() {
+					var patientregistrationForm = {
+							  patientAreaName: $scope.patientareaname,
+							  patientCity: $scope.patientcity.cityId,
+							  patientContact: $scope.patientContact,
+							  patientEmail: $scope.patientemail,
+							  patientFirstName: $scope.patientfirstname,
+							  patientGender: $scope.patientgender,
+							  patientGuardian: $scope.guardianId,
+							  patientLastName: $scope.patientlastname,
+							  patientPassword: $scope.patientpassword,
+							  patientPostalCode: $scope.doctorpostalcode,
+							  patientStreetName: $scope.patientstreetname
+							};
+					
+					var userreq = {
+							 method: 'POST',
+							 url: 'http://localhost:8888/app/cityvault/patientuserregistration',
+							 data:  JSON.stringify(patientregistrationForm)
+							};
+					
+					$http(userreq)
+					.then(function(response) {
+						location.replace("http://localhost:8888/app/");
+						alert("Registered");
+							},
+							function myError(response) {
+								alert("Could not Login");
+								$scope.heading += response.statusText;
+							});
+				}
+				
+			};
+			
+		});
+	</script>
+</body>
+</html>
