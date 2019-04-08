@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.srhheidelberg.dap.doctorappointmentplatform.dao.PatientUserDAO;
+import com.srhheidelberg.dap.doctorappointmentplatform.daointrfc.PatientUserIDAO;
 import com.srhheidelberg.dap.doctorappointmentplatform.model.PatientUser;
 
 @RestController
@@ -20,7 +21,7 @@ import com.srhheidelberg.dap.doctorappointmentplatform.model.PatientUser;
 public class PatientUserRestController {
 	
 	@Autowired
-	PatientUserDAO patientUserDAO;
+	PatientUserIDAO patientUserDAO;
 	
 	@GetMapping("/patientusers")
 	public List<PatientUser> getAllPatients() {
@@ -29,6 +30,7 @@ public class PatientUserRestController {
 	
 	@GetMapping("/patientuserlogin/{patientEmail}")
 	public PatientUser getPatientUserByEmail(@PathVariable(value="patientEmail") String patientEmail) {
+		System.out.print(patientEmail);
 		return patientUserDAO.findByPatientEmail(patientEmail);
 	}
 

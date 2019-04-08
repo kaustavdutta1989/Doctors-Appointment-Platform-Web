@@ -22,7 +22,6 @@ public class AppointmentAvailabilityDAO implements AppointmentAvailabilityIDAO {
 
 	@Override
 	public List<AppointmentAvailability> saveForRegistration(List<AppointmentAvailability> appointmentAvailabilities) {
-		
 		return appointmentAvailabilityRepository.saveAll(appointmentAvailabilities);
 	}
 	
